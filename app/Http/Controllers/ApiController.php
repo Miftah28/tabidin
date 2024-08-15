@@ -20,7 +20,6 @@ class ApiController extends Controller
             'success' => true,
             'data' => [
                 'kategori' => $kategori,
-                // 'lokasi' => $lokasi
             ],
             'message' => 'Sukses menampilkan data'
         ]);
@@ -113,6 +112,51 @@ class ApiController extends Controller
         return response()->json([
             'success' => true,
             'data' => $mergedCounts,
+            'total_pengunjung' => $countpengunjung,
+            'message' => 'Sukses menampilkan data per buku'
+        ]);
+    }
+    public function kategorimarge()
+    {
+        $countsPinjam = Peminjaman::select('kategori_id', DB::raw('count(*) as total_pinjam'))
+            ->groupBy('kategori_id')
+            ->pluck('total_pinjam', 'kategori_id');
+
+        // Mengambil jumlah pembacaan per buku
+        $countsBaca = Baca::select('kategori_id', DB::raw('count(*) as total_baca'))
+            ->groupBy('kategori_id')
+            ->pluck('total_baca', 'kategori_id');
+
+        // Menggabungkan kedua hitungan
+        $mergedPinjamCounts = [];
+
+        foreach ($countsPinjam as $bookId => $totalPinjam) {
+            $totalBaca = $countsBaca->get($bookId, 0);
+            $mergedPinjamCounts[] = [
+                'kategori_id' => $bookId,
+                'total_pinjam' => $totalPinjam,
+                // 'total_baca' => $totalBaca,
+                // 'total_activity' => $totalPinjam + $totalBaca,
+            ];
+        }
+        $mergedBacaCounts = [];
+        foreach ($countsBaca as $bookId => $totalPinjam) {
+            $totalBaca = $countsBaca->get($bookId, 0);
+            $mergedBacaCounts[] = [
+                'kategori_id' => $bookId,
+                // 'total_pinjam' => $totalPinjam,
+                'total_baca' => $totalBaca,
+                // 'total_activity' => $totalPinjam + $totalBaca,
+            ];
+        }
+
+        // Menghitung total pengunjung
+        $countpengunjung = Pengunjung::count();
+
+        return response()->json([
+            'success' => true,
+            'data_pinjam' => $mergedPinjamCounts,
+            'data_baca' => $mergedBacaCounts,
             'total_pengunjung' => $countpengunjung,
             'message' => 'Sukses menampilkan data per buku'
         ]);

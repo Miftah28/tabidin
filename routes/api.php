@@ -22,4 +22,5 @@ Route::get('kategori', [ApiController::class, 'kategoribuku']);
 Route::get('countperbulan', [ApiController::class, 'countperbulan']);
 Route::get('count', [ApiController::class, 'datacount']);
 Route::get('margebuku', [ApiController::class, 'datamarge']);
+Route::get('margekategori', [ApiController::class, 'kategorimarge']);
 Route::get('kategori/{idkategori}/buku', [ApiController::class, 'buku']);
